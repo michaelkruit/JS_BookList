@@ -42,12 +42,23 @@ class UI {
     }
 
     static deleteBook(el) {
-        if(el.classList.contains('delete')) {
+        if (el.classList.contains('delete')) {
             el.parentElement.parentElement.remove();
         }
     }
 
-    static clearFields(){
+    static showAlert(message, className) {
+        const div = document.createElement('div');
+        div.className = `alert alert-${className}`;
+        div.appendChild(document.createTextNode(message));
+        const container = document.querySelector('.container');
+        const form = document.querySelector('#book-form');
+        container.insertBefore(div, form);
+        // Vanish in 3 secconds
+        setTimeout(() => document.querySelector('.alert').remove(), 3000);
+    }
+
+    static clearFields() {
         document.querySelector('#title').value = '';
         document.querySelector('#author').value = '';
         document.querySelector('#isbn').value = '';
@@ -60,7 +71,7 @@ class UI {
 document.addEventListener('DOMContentLoaded', UI.displayBooks);
 
 // Event: Add Book
-document.querySelector('#book-form').addEventListener('submit', (e) =>{
+document.querySelector('#book-form').addEventListener('submit', (e) => {
     // Prevent default submit
     e.preventDefault();
 
@@ -69,17 +80,26 @@ document.querySelector('#book-form').addEventListener('submit', (e) =>{
     const author = document.querySelector('#author').value;
     const isbn = document.querySelector('#isbn').value;
 
-    // Instatiate book
-    const book = new Book(title, author, isbn);
+    // Validate 
+    if (title === '' || author === '' || isbn === '') {
+        UI.showAlert('Not all fields are filled', 'danger');
+    } else {
+        // Instatiate book
+        const book = new Book(title, author, isbn);
 
-    // Add Book To UI
-    UI.addBookToList(book); 
+        // Add Book To UI
+        UI.addBookToList(book);
 
-    // Clear fields
-    UI.clearFields();
+        // Show succes message
+        UI.showAlert('Book added', 'success');
+
+        // Clear fields
+        UI.clearFields();
+    }
 });
 
 // Event: Remove Book
-document.querySelector('#book-list').addEventListener('click', (e)=>{
+document.querySelector('#book-list').addEventListener('click', (e) => {
     UI.deleteBook(e.target);
+    UI.showAlert('Book is removed', 'success');
 })
